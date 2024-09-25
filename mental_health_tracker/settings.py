@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-1*a5y8m3*84ih=a8#hf+=d$(=5r%epm(v$coeixh@r3flr(fsx
 # SECURITY WARNING: don't run with debug turned on in production!
 
 PRODUCTION = os.getenv("PRODUCTION", False)
-DEBUG = False
+DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "gnade-yuka-mentalhealthtracker.pbp.cs.ui.ac.id."]
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -124,3 +125,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = ["http://localhost","http://127.0.0.1","http://gnade-yuka-mentalhealthtracker.pbp.cs.ui.ac.id", "https://gnade-yuka-mentalhealthtracker.pbp.cs.ui.ac.id"]
+
+STATIC_URL = '/static/'
+if DEBUG:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static' # merujuk ke /static root project pada mode development
+    ]
+else:
+    STATIC_ROOT = BASE_DIR / 'static'
