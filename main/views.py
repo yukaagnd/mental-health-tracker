@@ -15,15 +15,17 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
-
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.http import JsonResponse
 
 @login_required(login_url='/login')
 def show_main(request):
 
     context = {
         'name': request.user.username,
-        'class': 'PBP D',
-        'npm': '2306123456',
+        'class': 'PBP B',
+        'npm': '2306165704',
         'last_login': request.COOKIES['last_login'],
     }
 
@@ -52,7 +54,7 @@ def show_xml_by_id(request, id):
 
 
 def show_json(request):
-    data = MoodEntry.objects.filter(user=request.user)
+    data = MoodEntry.objects.all()
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
 def show_json_by_id(request, id):
@@ -80,6 +82,7 @@ def login_user(request):
         login(request, user)
         response = HttpResponseRedirect(reverse("main:show_main"))
         response.set_cookie('last_login', str(datetime.datetime.now()))
+        print(response)
         return response
       else:
         messages.error(request, "Invalid username or password. Please try again.")
@@ -133,3 +136,22 @@ def add_mood_entry_ajax(request):
     new_mood.save()
 
     return HttpResponse(b"CREATED", status=201)
+
+
+@csrf_exempt
+def create_mood_flutter(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        new_mood = MoodEntry.objects.create(
+            user=request.user,
+            mood=data["mood"],
+            mood_intensity=int(data["mood_intensity"]),
+            feelings=data["feelings"]
+        )
+
+        new_mood.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
